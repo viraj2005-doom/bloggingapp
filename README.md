@@ -1,102 +1,149 @@
-# BlogApp Backend
+# BloggingApp
 
-A full-stack blog application with JWT authentication, image uploads, and server-side rendering.
+A full-stack blog application with JWT authentication, image uploads, server-side rendering, and Docker support for easy deployment.
 
 ## Tech Stack
 
 - **Runtime:** Node.js
 - **Framework:** Express.js
-- **Database:** MongoDB (Mongoose ODM)
+- **Database:** MongoDB with Mongoose
 - **Templating:** EJS
-- **Authentication:** JWT (JSON Web Tokens)
-- **File Upload:** Multer
-- **Password Hashing:** HMAC-SHA256 with random salt
+- **Authentication:** JWT in HTTP-only cookies
+- **File Uploads:** Multer
+- **Containerization:** Docker
 
 ## Features
 
-- User signup & signin with hashed passwords
-- JWT-based authentication via cookies
-- Create, read blog posts with cover image upload
+- User signup and signin with hashed passwords
+- JWT-based authentication using cookies
+- Create and read blog posts with cover image upload
 - Comment on blog posts
-- Role-based user model (user/admin)
-- Server-side rendered views with EJS
+- Role-based user model (`user` / `admin`)
+- Server-side rendered pages with EJS
+- Dockerized deployment for consistent local and production runs
+- Published Docker Hub image for quick startup
 
 ## Project Structure
 
-```
-├── app.js                 # Entry point
-├── controllers/           # Controller logic
-├── middlewares/
-│   └── auth.js            # JWT authentication middleware
-├── models/
-│   ├── blog.js            # Blog schema
-│   ├── comment.js         # Comment schema
-│   └── user.js            # User schema with password hashing
-├── routes/
-│   ├── blog.js            # Blog routes (CRUD, image upload)
-│   └── user.js            # User routes (signup, signin, signout)
-├── service/
-│   └── auth.js            # JWT token creation & verification
-├── public/
-│   ├── images/            # Static images
-│   └── uploads/           # Uploaded blog cover images
-└── views/
-    ├── home.ejs           # Homepage with all blogs
-    ├── addblog.ejs        # Add new blog form
-    ├── blog.ejs           # Single blog with comments
-    ├── signin.ejs         # Sign in page
-    ├── signup.ejs         # Sign up page
-    └── partials/          # Reusable EJS partials
+```text
+.
+|-- app.js
+|-- controllers/
+|-- middlewares/
+|   `-- auth.js
+|-- models/
+|   |-- blog.js
+|   |-- comment.js
+|   `-- user.js
+|-- public/
+|   |-- images/
+|   `-- uploads/
+|-- routes/
+|   |-- blog.js
+|   `-- user.js
+|-- service/
+|   `-- auth.js
+|-- views/
+|   |-- partials/
+|   |-- addblog.ejs
+|   |-- blog.ejs
+|   |-- home.ejs
+|   |-- signin.ejs
+|   `-- signup.ejs
+|-- Dockerfile
+|-- .dockerignore
+|-- package.json
+`-- package-lock.json
 ```
 
-## Getting Started
+## Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+PORT=8000
+MONGODB_URI=mongodb://localhost:27017/blogapp
+```
+
+## Run Locally
 
 ### Prerequisites
 
-- Node.js (v16+)
+- Node.js 16 or later
 - MongoDB
 
 ### Installation
 
 1. Clone the repository
-   ```bash
-   git clone <repo-url>
-   cd blogappbackend
-   ```
+
+```bash
+git clone https://github.com/viraj2005-doom/bloggingapp.git
+cd blogappbackend
+```
 
 2. Install dependencies
-   ```bash
-   npm install
-   ```
 
-3. Create a `.env` file in the root directory
-   ```
-   PORT=8000
-   MONGODB_URI=mongodb://localhost:27017/blogapp
-   ```
+```bash
+npm install
+```
 
-4. Start the server
-   ```bash
-   # Development
-   npm run dev
+3. Start the app
 
-   # Production
-   npm start
-   ```
+```bash
+# Development
+npm run dev
 
-5. Open `http://localhost:8000` in your browser
+# Production
+npm start
+```
+
+4. Open `http://localhost:8000`
+
+## Docker
+
+This project includes a production-ready [Dockerfile](/a:/blogappbackend/Dockerfile) for building a container image.
+
+### Build Docker Image
+
+```bash
+docker build -t bloggingapp .
+```
+
+### Run Docker Container
+
+```bash
+docker run -p 8000:8000 -e PORT=8000 -e MONGODB_URI="mongodb://host.docker.internal:27017/blogify" bloggingapp
+```
+
+Open `http://localhost:8000` after the container starts.
+
+### Pull from Docker Hub
+
+The image is also available on Docker Hub:
+
+```bash
+docker pull viraj3007/bloggingapp:latest
+docker run -p 8000:8000 -e PORT=8000 -e MONGODB_URI="mongodb://host.docker.internal:27017/blogify" viraj3007/bloggingapp:latest
+```
+
+### Docker Notes
+
+- The app needs `MONGODB_URI` to connect to MongoDB.
+- `public/uploads` is created inside the image for blog cover uploads.
+- `.env` is excluded from the image by `.dockerignore`, so pass variables with `-e` or `--env-file`.
+- If you open a shell inside the container, use `sh` instead of `cmd`.
 
 ## API Routes
 
-| Method | Route             | Description          | Auth Required |
-|--------|-------------------|----------------------|---------------|
-| GET    | `/`               | Home page (all blogs)| Yes           |
-| GET    | `/user/signin`    | Sign in page         | No            |
-| GET    | `/user/signup`    | Sign up page         | No            |
-| POST   | `/user/signin`    | Sign in user         | No            |
-| POST   | `/user/signup`    | Register user        | No            |
-| GET    | `/user/signout`   | Sign out user        | No            |
-| GET    | `/blog/add`       | Add blog form        | Yes           |
-| POST   | `/blog/add`       | Create blog post     | Yes           |
-| GET    | `/blog/:id`       | View single blog     | Optional      |
-| POST   | `/blog/comment/:id` | Add comment        | Yes           |
+| Method | Route | Description | Auth Required |
+|--------|-------|-------------|---------------|
+| GET | `/` | Home page with all blogs | Yes |
+| GET | `/user/signin` | Sign in page | No |
+| GET | `/user/signup` | Sign up page | No |
+| POST | `/user/signin` | Sign in user | No |
+| POST | `/user/signup` | Register user | No |
+| GET | `/user/signout` | Sign out user | No |
+| GET | `/blog/add` | Add blog form | Yes |
+| POST | `/blog/add` | Create blog post | Yes |
+| GET | `/blog/:id` | View single blog | Optional |
+| POST | `/blog/comment/:blogId` | Add comment | Yes |
