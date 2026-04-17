@@ -24,7 +24,7 @@ router.get("/add", checkforauth("token"), (req, res) => {
     if (!req.user) {
         return res.redirect('/user/signin?returnTo=/blog/add');
     }
-    return res.render("addBlog", {
+    return res.render("addblog", {
         user: req.user
     });
 });
